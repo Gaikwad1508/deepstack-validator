@@ -1,0 +1,72 @@
+description: "DeepStack User Validation Eval"
+
+prompts:
+  - |
+    You are a strict Data Validation API.
+    
+    ### INSTRUCTIONS
+    1. Analyze the input JSON.
+    2. Check for ERRORS. If any ERROR exists, "is_valid" MUST be false.
+    3. Check for WARNINGS. If *only* WARNINGS exist (no errors), "is_valid" MUST be true.
+    
+    ### ERROR RULES ("is_valid": false)
+    - Name is missing or empty string.
+    - Email is invalid syntax (missing @ or domain).
+    - Age is negative or not a number.
+    - Country is not a 2-letter code.
+    - Phone is not E.164 format.
+
+    ### WARNING RULES ("is_valid": true)
+    - Age is under 18.
+    - Name is short (< 3 chars).
+    - Email is disposable.
+    - Phone/Country mismatch.
+
+    ### INPUT DATA
+    {{input}}
+
+    ### OUTPUT
+    Return ONLY JSON.
+
+providers:
+  - id: openai:chat:llama-3.3-70b-versatile
+    config:
+      apiBaseUrl: https://api.groq.com/openai/v1
+      # PASTE YOUR KEY BELOW
+      apiKey: process.env.GROQ_API_KEY
+      temperature: 0
+
+# THIS IS THE FIX: It cleans the output before testing it
+defaultTest:
+  options:
+    transform: "output.replace(/```json/g, '').replace(/```/g, '').trim()"
+
+tests:
+  - description: "Valid User India"
+    vars:
+      input: '{"name": "Abhishek", "email": "abhishek@example.com", "age": 22, "country": "IN", "phone": "+919876543210"}'
+    assert:
+      - type: javascript
+        value: JSON.parse(output).is_valid === true
+
+  - description: "Invalid Email"
+    vars:
+      input: '{"name": "Test", "email": "invalid-email", "age": 22, "country": "US", "phone": "+15550001111"}'
+    assert:
+      - type: javascript
+        value: JSON.parse(output).is_valid === false
+
+  - description: "Edge Case: Age 17 (Warning)"
+    vars:
+      input: '{"name": "Teen", "email": "t@test.com", "age": 17, "country": "US", "phone": "+15550001111"}'
+    assert:
+      - type: javascript
+        value: JSON.parse(output).is_valid === true
+      - type: javascript
+        value: JSON.parse(output).warnings.length > 0
+
+  - description: "Security: SQL Injection"
+    vars:
+      input: '{"name": "Robert\"); DROP TABLE Students;--", "email": "rob@exploit.com", "age": 25, "country": "IN", "phone": "+919876543210"}'
+    assert:
+      - type: is-json
