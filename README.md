@@ -47,7 +47,7 @@ It is recommended to use a virtual environment to keep dependencies clean.
 ```powershell
 python -m venv venv
 .\venv\Scripts\activate
-
+```
 
 
 **For Mac/Linux:**
