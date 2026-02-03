@@ -1,4 +1,3 @@
-
 # DeepStack Validator 🛡️
 
 **An Intelligent, LLM-Powered Semantic Data Validation Engine.**
@@ -47,8 +46,8 @@ It is recommended to use a virtual environment to keep dependencies clean.
 ```powershell
 python -m venv venv
 .\venv\Scripts\activate
-```
 
+```
 
 **For Mac/Linux:**
 
@@ -120,10 +119,12 @@ python validate_user.py user.json
 
 This project includes a comprehensive test suite using `promptfoo` to ensure the LLM handles edge cases correctly.
 
-Run the tests with the following command:
+We have included a custom test runner script that automatically handles API key injection for Windows/Linux environments.
+
+**Run the tests with:**
 
 ```bash
-npx promptfoo@0.60.0 eval --no-cache
+node run_tests.js
 
 ```
 
@@ -142,11 +143,12 @@ npx promptfoo@0.60.0 eval --no-cache
 
 * **`app.py`**: The Streamlit-based interactive web dashboard.
 * **`validate_user.py`**: The main Python script logic that connects to the LLM.
+* **`run_tests.js`**: Custom Node.js script to execute regression tests securely across different OS environments.
 * **`promptfooconfig.yaml`**: Configuration for the regression testing suite.
-* **`user.json` / `test_input.json**`: Sample JSON data files used for testing.
+* **`user.json`**: Sample JSON data file used for testing.
 * **`requirements.txt`**: List of Python dependencies (`openai`, `streamlit`, `python-dotenv`, etc.).
 * **`.env`**: Local file for storing API keys (Excluded from GitHub).
-* **`.gitignore`**: Ensures system files and secrets are not uploaded.
+* **`.gitignore`**: Ensures system files (like `venv/`) and secrets are not uploaded.
 
 ## 🛡️ Security Note
 
